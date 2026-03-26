@@ -1,19 +1,50 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Task, CreateTaskInput, UpdateTaskInput } from '../lib/types'
+
+// Helper functions for localStorage
+const STORAGE_KEY = 'taskflow-columns'
+
+const getColumnsFromStorage = () => {
+  if (typeof window === 'undefined') return []
+  const stored = localStorage.getItem(STORAGE_KEY)
+  return stored ? JSON.parse(stored) : []
+}
+
+const saveColumnsToStorage = (columns: any[]) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(columns))
+}
 
 export function useAddTask() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (data: CreateTaskInput) => {
-      const res = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-      if (!res.ok) throw new Error('Failed to add task')
-      return res.json()
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      const columns = getColumnsFromStorage()
+      
+      // Find the target column
+      const columnIndex = columns.findIndex((col: any) => col.id === data.columnId)
+      if (columnIndex === -1) throw new Error('Column not found')
+      
+      // Create new task
+      const newTask: Task = {
+        id: Date.now().toString(),
+        content: data.content,
+        description: data.description || '',
+        columnId: data.columnId,
+        order: columns[columnIndex].tasks.length,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      
+      // Add task to column
+      columns[columnIndex].tasks.push(newTask)
+      saveColumnsToStorage(columns)
+      
+      return newTask
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['columns'] })
@@ -26,13 +57,26 @@ export function useUpdateTask() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: UpdateTaskInput & { id: string }) => {
-      const res = await fetch(`/api/tasks/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-      if (!res.ok) throw new Error('Failed to update task')
-      return res.json()
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      const columns = getColumnsFromStorage()
+      
+      // Find the task across all columns
+      for (const column of columns) {
+        const taskIndex = column.tasks.findIndex((t: Task) => t.id === id)
+        if (taskIndex !== -1) {
+          // Update task
+          column.tasks[taskIndex] = {
+            ...column.tasks[taskIndex],
+            ...data,
+            updatedAt: new Date().toISOString()
+          }
+          saveColumnsToStorage(columns)
+          return column.tasks[taskIndex]
+        }
+      }
+      
+      throw new Error('Task not found')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['columns'] })
@@ -44,12 +88,26 @@ export function useDeleteTask() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await fetch(`/api/tasks/${id}`, {
-        method: 'DELETE',
-      })
-      if (!res.ok) throw new Error('Failed to delete task')
-      return res.json()
+    mutationFn: async (taskId: string) => {
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      const columns = getColumnsFromStorage()
+      
+      // Find and remove task
+      for (const column of columns) {
+        const taskIndex = column.tasks.findIndex((t: Task) => t.id === taskId)
+        if (taskIndex !== -1) {
+          column.tasks.splice(taskIndex, 1)
+          // Reorder remaining tasks
+          column.tasks.forEach((task: Task, index: number) => {
+            task.order = index
+          })
+          saveColumnsToStorage(columns)
+          return taskId
+        }
+      }
+      
+      throw new Error('Task not found')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['columns'] })
@@ -57,7 +115,6 @@ export function useDeleteTask() {
   })
 }
 
-// Special hook for drag-and-drop reordering
 export function useReorderTask() {
   const queryClient = useQueryClient()
 
@@ -71,45 +128,52 @@ export function useReorderTask() {
       newColumnId: string
       newOrder: number
     }) => {
-      const res = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          columnId: newColumnId,
-          order: newOrder,
-        }),
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      const columns = getColumnsFromStorage()
+      let taskToMove: Task | null = null
+      let sourceColumnIndex = -1
+      
+      // Find the task and remove it from source column
+      for (let i = 0; i < columns.length; i++) {
+        const taskIndex = columns[i].tasks.findIndex((t: Task) => t.id === taskId)
+        if (taskIndex !== -1) {
+          taskToMove = columns[i].tasks[taskIndex]
+          sourceColumnIndex = i
+          columns[i].tasks.splice(taskIndex, 1)
+          break
+        }
+      }
+      
+      if (!taskToMove) throw new Error('Task not found')
+      
+      // Find target column
+      const targetColumnIndex = columns.findIndex((col: any) => col.id === newColumnId)
+      if (targetColumnIndex === -1) throw new Error('Target column not found')
+      
+      // Update task properties
+      taskToMove.columnId = newColumnId
+      taskToMove.order = newOrder
+      taskToMove.updatedAt = new Date().toISOString()
+      
+      // Insert task at new position
+      columns[targetColumnIndex].tasks.splice(newOrder, 0, taskToMove)
+      
+      // Reorder tasks in both source and target columns
+      if (sourceColumnIndex !== -1) {
+        columns[sourceColumnIndex].tasks.forEach((task: Task, index: number) => {
+          task.order = index
+        })
+      }
+      
+      columns[targetColumnIndex].tasks.forEach((task: Task, index: number) => {
+        task.order = index
       })
-      if (!res.ok) throw new Error('Failed to reorder task')
-      return res.json()
+      
+      saveColumnsToStorage(columns)
+      return taskToMove
     },
-    onMutate: async ({ taskId, newColumnId, newOrder }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['columns'] })
-
-      // Snapshot previous value
-      const previousColumns = queryClient.getQueryData(['columns'])
-
-      // Optimistically update
-      queryClient.setQueryData(['columns'], (old: any) => {
-        if (!old) return old
-
-        return old.map((column: any) => ({
-          ...column,
-          tasks: column.tasks.map((task: any) => {
-            if (task.id === taskId) {
-              return { ...task, columnId: newColumnId, order: newOrder }
-            }
-            return task
-          }),
-        }))
-      })
-
-      return { previousColumns }
-    },
-    onError: (err, variables, context) => {
-      queryClient.setQueryData(['columns'], context?.previousColumns)
-    },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['columns'] })
     },
   })

@@ -34,3 +34,48 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+# TaskFlow 🚀
+
+A modern, collaborative task management board built with Next.js 16, TypeScript, and Prisma. Drag and drop tasks, organize columns, and boost team productivity with real-time updates.
+
+![TaskFlow Preview](public/og-image.png)
+
+## ✨ Features
+
+- **Drag & Drop Interface** - Intuitively move tasks between columns with smooth animations
+- **Real-time Updates** - Changes reflect instantly with optimistic UI updates
+- **Task Management** - Create, edit, and delete tasks with rich descriptions
+- **Column Organization** - Add, remove, and reorder columns to match your workflow
+- **Persistent Storage** - SQLite database with Prisma ORM for reliable data persistence
+- **Dark Mode** - Seamless dark/light theme switching
+- **Responsive Design** - Works perfectly on desktop, tablet, and mobile
+- **Keyboard Navigation** - Full accessibility support with keyboard shortcuts
+
+## 🛠️ Tech Stack
+
+| Category | Technologies |
+|----------|--------------|
+| **Framework** | Next.js 16 (App Router) |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS |
+| **Database** | SQLite + Prisma ORM |
+| **State Management** | TanStack Query + Zustand |
+| **Drag & Drop** | dnd-kit |
+| **UI Components** | Lucide Icons |
+| **Development** | Turbopack, ESLint |
+
+## 📋 Prerequisites
+
+- Node.js 18+ 
+- npm or yarn or pnpm
+- Git
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Franchesca02/taskflow.git
+cd taskflow

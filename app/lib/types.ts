@@ -1,10 +1,20 @@
+export interface Task {
+  id: string
+  content: string
+  description?: string
+  columnId: string
+  order: number
+  createdAt: string
+  updatedAt: string
+}
 
-import { Column as PrismaColumn, Task as PrismaTask } from '@prisma/client'
-
-export type Task = PrismaTask
-
-export type Column = PrismaColumn & {
+export interface Column {
+  id: string
+  title: string
+  order: number
   tasks: Task[]
+  createdAt: string
+  updatedAt: string
 }
 
 export type CreateColumnInput = {
