@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "./lib/prisma";
 import { Suspense } from "react";
-import { Star, GitBranch, Users, ArrowRight } from "lucide-react";
+import { Star, Users, ArrowRight } from "lucide-react";
 
 // Fetch real data from your database
 async function getStats() {
@@ -78,39 +77,6 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/70 dark:bg-black/70 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">T</span>
-              </div>
-              <div>
-                <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  TaskFlow
-                </span>
-                <p className="text-xs text-zinc-500">v2.0.0 • Production Ready</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <GitBranch className="h-4 w-4" />
-                <span>main</span>
-              </div>
-              <Link 
-                href="/board" 
-                className="group relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-2.5 text-sm font-medium text-white hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                Launch Dashboard
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <main className="max-w-7xl mx-auto px-6 py-16">
         {/* Hero Section with Live Stats */}
         <div className="grid lg:grid-cols-2 gap-16 items-start mb-24">
@@ -306,7 +272,7 @@ export default async function Home() {
         </div>
 
         {/* Social Proof Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-white mb-24">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-white">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold mb-4">Trusted by 50,000+ teams</h2>
@@ -336,49 +302,7 @@ export default async function Home() {
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <footer className="border-t border-zinc-200 dark:border-zinc-800 pt-12">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600" />
-                <span className="font-semibold text-zinc-900 dark:text-white">TaskFlow</span>
-              </div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                The modern task management platform for high-performance teams.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-medium text-zinc-900 dark:text-white mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <li><Link href="/features">Features</Link></li>
-                <li><Link href="/pricing">Pricing</Link></li>
-                <li><Link href="/changelog">Changelog</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-zinc-900 dark:text-white mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <li><Link href="/about">About</Link></li>
-                <li><Link href="/blog">Blog</Link></li>
-                <li><Link href="/careers">Careers</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-zinc-900 dark:text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <li><Link href="/privacy">Privacy</Link></li>
-                <li><Link href="/terms">Terms</Link></li>
-                <li><Link href="/security">Security</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
-            <p>© Ifeyinwa {new Date().getFullYear()} TaskFlow. Built with Next.js 14, TypeScript, and Prisma.</p>
-          </div>
-        </footer>
       </main>
     </div>
-  );
+  )
 }

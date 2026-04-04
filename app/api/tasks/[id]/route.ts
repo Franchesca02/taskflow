@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '../../../lib/prisma'
 
-type Params = {
-  params: {
-    id: string
-  }
-}
 
-export async function PUT(request: Request, { params }: Params) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = params
+    
+    const { id } = await params
     const { content, description, columnId, order } = await request.json()
 
     const existingTask = await prisma.task.findUnique({
@@ -57,9 +56,13 @@ export async function PUT(request: Request, { params }: Params) {
   }
 }
 
-export async function DELETE(request: Request, { params }: Params) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = params
+    // Await the params promise
+    const { id } = await params
 
     await prisma.task.delete({
       where: { id },
