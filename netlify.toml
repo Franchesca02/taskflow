@@ -1,0 +1,10 @@
+[build]
+  command = "npx prisma generate && npm run build"
+  publish = ".next"
+
+[build.environment]
+  DATABASE_URL = "file:./dev.db"
+  NEXT_PHASE = "phase-production-build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

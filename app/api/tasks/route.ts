@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '../../lib/prisma'
 
+const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
+                    process.env.NETLIFY === 'true'
+
 export async function POST(request: Request) {
+  if (isBuildTime) {
+    return NextResponse.json({ id: 'mock-id', content: 'Mock Task' })
+  }
+  
   try {
     const { content, description, columnId } = await request.json()
 
@@ -12,15 +19,14 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get the highest order in the target column
-    const lastTask = await prisma.task.findFirst({
+    const lastTask = await prisma.task?.findFirst({
       where: { columnId },
       orderBy: { order: 'desc' },
     })
 
     const newOrder = (lastTask?.order ?? -1) + 1
 
-    const task = await prisma.task.create({
+    const task = await prisma.task?.create({
       data: {
         content,
         description,

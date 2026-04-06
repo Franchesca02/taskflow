@@ -1,11 +1,11 @@
 import { config } from 'dotenv'
 import path from 'path'
 
-// Load .env.local
+// Load environment variables
 config({ path: path.resolve(process.cwd(), '.env.local') })
 
 export default {
   datasource: {
-    url: process.env.DATABASE_URL,
+    url: process.env.DATABASE_URL || "file:./dev.db",
   },
 }
