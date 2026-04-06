@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { Star, Users, ArrowRight } from "lucide-react";
 
 // Fetch real data from your database
+// Wrap database calls in try-catch with fallbacks
 async function getStats() {
   try {
     const [columnCount, taskCount] = await Promise.all([
@@ -13,11 +14,12 @@ async function getStats() {
     ]);
     return { columnCount, taskCount };
   } catch (error) {
+    // Return default values when database isn't available
+    console.log('Database not available during build, using defaults');
     return { columnCount: 0, taskCount: 0 };
   }
 }
 
-// Fetch recent tasks for the preview
 async function getRecentTasks() {
   try {
     const tasks = await prisma.task.findMany({
@@ -27,6 +29,7 @@ async function getRecentTasks() {
     });
     return tasks;
   } catch (error) {
+    console.log('Database not available during build, returning empty array');
     return [];
   }
 }
